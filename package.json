@@ -1,0 +1,49 @@
+{
+  "name": "cron-aggregator",
+  "version": "1.0.0",
+  "description": "Oracle aggregator contract for cronjobs",
+  "main": "truffle.js",
+  "scripts": {
+    "test": "scripts/test.sh",
+    "compile": "npx truffle compile",
+    "coverage": "npx truffle run coverage --solcoverjs ./.solcover.js --file=test/**/*_test.js --network development",
+    "postinstall": "patch-package",
+    "lint:solhint": "npx solhint \"contracts/**/*.sol\"",
+    "lint:solium": "npx solium -d contracts/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngyam/cron-aggregator.git"
+  },
+  "keywords": [
+    "cron",
+    "aggregator",
+    "contract",
+    "oracle",
+    "chainlink"
+  ],
+  "author": "Adam Nagy <ngy.am.zs@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ngyam/cron-aggregator/issues"
+  },
+  "homepage": "https://github.com/ngyam/cron-aggregator#readme",
+  "dependencies": {
+    "chainlink": "^0.8.2",
+    "dotenv": "^8.2.0",
+    "patch-package": "^6.2.0",
+    "solidity-coverage": "^0.7.1",
+    "truffle": "^5.1.12",
+    "truffle-hdwallet-provider": "^1.0.17"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-bn": "^0.2.0",
+    "ethlint": "^1.2.5",
+    "ganache-cli": "^6.9.0",
+    "solhint": "^2.3.0",
+    "solium-plugin-zeppelin": "0.0.2",
+    "web3": "^1.2.6"
+  }
+}
