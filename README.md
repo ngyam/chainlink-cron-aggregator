@@ -1,1 +1,1 @@
-# cron-aggregator
+# Cron aggregator

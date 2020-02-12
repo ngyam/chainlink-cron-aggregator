@@ -313,7 +313,7 @@ contract CronAggregator is Ownable {
     /**
     * @dev Prevents taking an action if the minimum number of contributions has not
     * been received for an answer.
-    * @param _aggregationId The the identifier of the answer that keeps track of the contributions.
+    * @param _aggregationId The the identifier that keeps track of the contributions.
     */
     modifier ensureMinContributionsReceived(uint256 _aggregationId) {
         if (aggregation[_aggregationId].contributions.length >= aggregation[_aggregationId].minContribution) {
@@ -364,6 +364,7 @@ contract CronAggregator is Ownable {
     /**
     * @dev Returns the kth value of the ordered array
     * See: http://www.cs.yale.edu/homes/aspnes/pinewiki/QuickSelect.html
+    * Taken from: https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/Aggregator.sol
     * @param _a The list of elements to pull from
     * @param _k The index, 1 based, of the elements you want to pull from when ordered
     */

@@ -7,9 +7,10 @@ require("dotenv").config();
 module.exports = {
   networks: {
     development: {
-      host: "localhost",
+      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY.trim(), 'http://localhost:8545'),
+      gasPrice: "1",
       port: 8545,
-      gas: 79000000,
+      gas: 6000000,
       network_id: "*"
     },
 
@@ -18,7 +19,7 @@ module.exports = {
       gasPrice: "1",
       confirmations: 1,
       from: process.env.FROM,
-      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY.trim(), 'https://volta-internal-archive.energyweb.org'),
+      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY.trim(), 'https://volta-rpc.energyweb.org'),
       production: true
     },
 
