@@ -1,4 +1,6 @@
-pragma solidity ^0.4.24;
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.6.0;
 
 import "../CronAggregator.sol";
 
@@ -12,8 +14,8 @@ contract MockCronAggregator is CronAggregator {
         uint256 _contributionTimeWindow,
         uint256 _minContribution,
         bool _onlyUniqueContributors,
-        address[] _authorizedContributors
-    )   
+        address[] memory _authorizedContributors
+    )
         public
         CronAggregator(
             _currentValue,
@@ -31,7 +33,7 @@ contract MockCronAggregator is CronAggregator {
     function getAggregation(uint256 _id)
         external
         view
-        returns (uint256, uint256, uint256[], address[])
+        returns (uint256, uint256, uint256[] memory, address[] memory)
     {
         uint256 _minContribution = aggregation[_id].minContribution;
         uint256 _maxContribution = aggregation[_id].maxContribution;

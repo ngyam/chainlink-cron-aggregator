@@ -1,0 +1,51 @@
+{
+  "initiators": [
+    {
+        "type": "cron",
+        "params": {
+            "schedule": "0 */5 * * * *"
+        }
+    }
+  ],
+  "tasks": [
+    {
+      "type": "httpget",
+      "confirmations": 0,
+      "params": {
+        "get": "https://api.liquid.com/products/560"
+      }
+    },
+    {
+      "type": "jsonparse",
+      "confirmations": null,
+      "params": {
+        "path": [
+          "last_price_24h"
+        ]
+      }
+    },
+    {
+      "type": "multiply",
+      "confirmations": null,
+      "params": {
+        "times": 1000000000000000000
+      }
+    },
+    {
+      "type": "ethuint256",
+      "confirmations": null,
+      "params": {
+      }
+    },
+    {
+      "type": "ethtx",
+      "confirmations": null,
+      "params": {
+          "address": "0x07EE931f871CfB6668d45Eaf8DFf228B09eAf1b0",
+          "functionSelector": "0xf59dfdfb"
+      }
+    }
+  ],
+  "startAt": null,
+  "endAt": null
+}

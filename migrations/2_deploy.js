@@ -4,7 +4,8 @@ const CA = artifacts.require("CronAggregator");
 // 1581296100 : 00:55:0
 
 module.exports = function(deployer) {
-  console.log(process.argv)
-  let isUnique = process.argv[10].toLowerCase() == true || process.argv[9] === "1"
-  deployer.deploy(CA, process.argv[5], process.argv[6], process.argv[7], process.argv[8], process.argv[9], isUnique, process.argv[11].split(","));
+  if(process.argv[5] === "deploy") {
+    let isUnique = process.argv[11].toLowerCase() == true || process.argv[11] === "1"
+    deployer.deploy(CA, process.argv[6], process.argv[7], process.argv[8], process.argv[9], process.argv[10], isUnique, process.argv[12].split(","));
+  }
 };

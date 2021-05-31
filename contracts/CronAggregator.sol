@@ -1,7 +1,10 @@
-pragma solidity ^0.4.24;
+// SPDX-License-Identifier: GPL-3.0-or-later
 
-import "chainlink/contracts/vendor/Ownable.sol";
-import "chainlink/contracts/vendor/SafeMath.sol";
+pragma solidity ^0.6.0;
+
+import "chainlink/v0.6/contracts/vendor/Ownable.sol";
+import "chainlink/v0.6/contracts/vendor/SafeMath.sol";
+import "./vendor/UintMedian.sol";
 
 
 contract CronAggregator is Ownable {
@@ -54,7 +57,7 @@ contract CronAggregator is Ownable {
         uint256 _contributionTimeWindow,
         uint256 _minContribution,
         bool _onlyUniqueContributors,
-        address[] _authorizedContributors
+        address[] memory _authorizedContributors
     )
         public
         onlyValidSettings(
@@ -110,9 +113,9 @@ contract CronAggregator is Ownable {
             require(!_isFull(aggregationCounter), "Maximum contributions reached");
         }
 
-        if(onlyUniqueContributors) {
+        if (onlyUniqueContributors) {
             require(!_alreadyContributed(aggregationCounter), "Address already contributed");
-            aggregation[aggregationCounter].contributors.push(msg.sender);    
+            aggregation[aggregationCounter].contributors.push(msg.sender);
         }
 
         aggregation[aggregationCounter].contributions.push(_value);
@@ -141,7 +144,7 @@ contract CronAggregator is Ownable {
                 aggregationCounter
             )
         );
-        
+
         if (isContributionPeriod()) {
             if (assumedSession == aggregationSession) {
                 return AggregationStatus.OPEN_ONGOING;
@@ -167,7 +170,7 @@ contract CronAggregator is Ownable {
     function updateContributionSettings(
         uint256 _minContribution,
         bool _onlyUniqueContributors,
-        address[] _authorizedContributors
+        address[] memory _authorizedContributors
     )
         public
         notContributionPeriod
@@ -226,7 +229,7 @@ contract CronAggregator is Ownable {
     function getAuthorizedContributors()
         public
         view
-        returns (address[])
+        returns (address[] memory)
     {
         return authorizedContributors;
     }
@@ -243,7 +246,7 @@ contract CronAggregator is Ownable {
     function _updateContributionSettings(
         uint256 _minContribution,
         bool _onlyUniqueContributors,
-        address[] _authorizedContributors
+        address[] memory _authorizedContributors
     )
         internal
     {
@@ -281,7 +284,7 @@ contract CronAggregator is Ownable {
         view
         returns (bool)
     {
-        for(uint8 i = 0; i < aggregation[_aggregationId].contributors.length; i++) {
+        for (uint8 i = 0; i < aggregation[_aggregationId].contributors.length; i++) {
             if (aggregation[_aggregationId].contributors[i] == msg.sender) {
                 return true;
             }
@@ -294,15 +297,7 @@ contract CronAggregator is Ownable {
         ensureMinContributionsReceived(_aggregationId)
         ensureOnlyLatestAnswer(_aggregationId)
     {
-        uint256 responseLength = aggregation[_aggregationId].contributions.length;
-        uint256 middleIndex = responseLength.div(2);
-        if (responseLength % 2 == 0) {
-            uint256 median1 = quickselect(aggregation[_aggregationId].contributions, middleIndex);
-            uint256 median2 = quickselect(aggregation[_aggregationId].contributions, middleIndex.add(1)); // quickselect is 1 indexed
-            currentValue = median1.add(median2) / 2; // signed integers are not supported by SafeMath
-        } else {
-            currentValue = quickselect(aggregation[_aggregationId].contributions, middleIndex.add(1)); // quickselect is 1 indexed
-        }
+        currentValue = UintMedian.calculate(aggregation[_aggregationId].contributions);
         latestAggregationValue = currentValue;
         latestCompletedAggregation = _aggregationId;
         latestAggregationHeight = block.number;
@@ -350,75 +345,17 @@ contract CronAggregator is Ownable {
         uint256 _fixedTimeFrequency,
         uint256 _contributionTimeWindow,
         uint256 _minContribution,
-        address[] _authorizedContributors
+        address[] memory _authorizedContributors
     ) {
         require(_authorizedContributors.length <= MAX_CONTRIBUTOR_COUNT, "Cannot have more than 45 contributors");
-        require(_authorizedContributors.length >= _minContribution, "Must have at least as many contributors as required contributions");
+        require(
+            _authorizedContributors.length >= _minContribution,
+            "Must have at least as many contributors as required contributions"
+        );
         require(_fixedTimeBase <= block.timestamp, "Fixed-time base must be in the past");
         //require(_contributionTimeWindow > 0, "Contribution window cannot be 0");
         require(_fixedTimeFrequency > 0, "Time frequency cannot be 0");
         require(_fixedTimeFrequency > _contributionTimeWindow, "Freq must be > than window");
         _;
-    }
-
-    /**
-    * @dev Returns the kth value of the ordered array
-    * See: http://www.cs.yale.edu/homes/aspnes/pinewiki/QuickSelect.html
-    * Taken from: https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.4/Aggregator.sol
-    * @param _a The list of elements to pull from
-    * @param _k The index, 1 based, of the elements you want to pull from when ordered
-    */
-    function quickselect(uint256[] memory _a, uint256 _k)
-        private
-        pure
-        returns (uint256)
-    {
-        uint256[] memory a = _a;
-        uint256 k = _k;
-        uint256 aLen = a.length;
-        uint256[] memory a1 = new uint256[](aLen);
-        uint256[] memory a2 = new uint256[](aLen);
-        uint256 a1Len;
-        uint256 a2Len;
-        uint256 pivot;
-        uint256 i;
-
-        while (true) {
-            pivot = a[aLen.div(2)];
-            a1Len = 0;
-            a2Len = 0;
-            for (i = 0; i < aLen; i++) {
-                if (a[i] < pivot) {
-                    a1[a1Len] = a[i];
-                    a1Len++;
-                } else if (a[i] > pivot) {
-                    a2[a2Len] = a[i];
-                    a2Len++;
-                }
-            }
-            if (k <= a1Len) {
-                aLen = a1Len;
-                (a, a1) = swap(a, a1);
-            } else if (k > (aLen.sub(a2Len))) {
-                k = k.sub(aLen.sub(a2Len));
-                aLen = a2Len;
-                (a, a2) = swap(a, a2);
-            } else {
-                return pivot;
-            }
-        }
-    }
-
-    /**
-    * @dev Swaps the pointers to two uint256 arrays in memory
-    * @param _a The pointer to the first in memory array
-    * @param _b The pointer to the second in memory array
-    */
-    function swap(uint256[] memory _a, uint256[] memory _b)
-        private
-        pure
-        returns(uint256[] memory, uint256[] memory)
-    {
-        return (_b, _a);
     }
 }
