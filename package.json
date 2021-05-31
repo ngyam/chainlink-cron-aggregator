@@ -37,7 +37,7 @@
     "dotenv": "^8.2.0",
     "ethlint": "^1.2.5",
     "ganache-cli": "^6.9.0",
-    "patch-package": "^6.2.0",
+    "patch-package": "^6.4.7",
     "solhint": "^2.3.0",
     "solidity-coverage": "^0.7.1",
     "solium-plugin-zeppelin": "0.0.2",
